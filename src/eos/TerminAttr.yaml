@@ -1,0 +1,128 @@
+#-------------------------------------------------------------------------------
+#- Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+#- Author:
+#-   fdk-support@arista.com
+#-
+#- Description:
+#-   Example application demonstrating the libapp.subprocess module using
+#-    TerminAttr. 
+#-
+#-   Licensed under BSD 3-clause license:
+#-     https://opensource.org/licenses/BSD-3-Clause
+#-
+#- Tags:
+#-   license-bsd-3-clause
+#-
+#-------------------------------------------------------------------------------
+
+vendor:
+   name: Arista Networks
+   address: 5453 Great America Parkway, Santa Clara, CA 95054
+   phoneNumber: +1-408-547-5500
+   email: fdk-support@arista.com
+
+namespace: fdk.terminattr
+
+daemons:
+   TerminAttrDaemon:
+      exe: /opt/apps/terminattr/eos/TerminAttrDaemon.py
+
+modes:
+   terminattr:
+      command:
+         syntax: terminattr
+         noSyntax: terminattr
+      modeKey: terminattr
+      daemon: TerminAttrDaemon
+
+commands:
+   disabled:
+      syntax: disabled
+      noSyntax: disabled
+      mode: terminattr
+
+   address:
+      syntax: address { <address> port <port> }
+      noSyntax: address
+      mode: terminattr
+      data:
+         <address>:
+            ipAddress:
+         <port>:
+            integer:
+
+   # Authentication scheme used to connect to CloudVision. Possible values
+   #   "none": no authentication
+   #   "none-tls[,{caFile}]": no authentication, TLS encryption
+   #   "certs,{certFile},{keyFile}[,{caFile}]": client-side certificate
+   #   "token,{tokenFile}": client-side certificate with token-based enrollment
+   #   "token-secure,{tokenFile}[,{caFile}]": client-side certificate with token-based enrollment,
+   #       with initial connection verified using TLS.
+   #       Uses OS default CA for verification if caFile is not given.
+   #   "key,{key}[,{caFile}]": Metadata key authentication with TLS encryption.
+   #   "session-token",{sessionTokenFile}[,{caFile}]": Session token authentication with TLS encryption.
+
+   authorization:
+      syntax: authorization ((tls [<ca-file>])|(certs <cert-file> <key-file> [ca-file])|(token <token-file>)|(token-secure <token-file> <ca-file>)|(key <key> [<ca-file>])|(session-token <session-token-file> [<ca-file>]))
+      noSyntax: authorization
+      mode: terminattr
+      data:
+         <ca-file>:
+           regex:
+             regex: .*
+             help: A CA certificate file
+         <cert-file>:
+           regex:
+             regex: .*
+             help: A CA certificate file
+         <key-file>:
+           regex:
+             regex: .*
+             help: A key file
+         <token-file>:
+           regex:
+             regex: .*
+             help: A key file
+         <key>:
+           regex:
+             regex: .*
+             help: A key for TLS encryption
+         <session-token-file>:
+           regex:
+             regex: .*
+             help: Session token authentication
+
+   compression:
+      syntax: compression <compression>
+      noSyntax: compression
+      mode: terminattr
+      data:
+         <compression>:
+            enum:
+               values:
+                  gzip: Use gzip compression
+
+   terminattr:
+      syntax: binary <binary>
+      noSyntax: binary
+      mode: terminattr
+      data:
+         <binary>:
+            regex:
+               help: The binary to use for TerminAttr
+               regex: .*
+
+   vrf:
+      syntax: vrf <vrf>
+      noSyntax: vrf
+      mode: terminattr
+      data:
+         <vrf>:
+            regex:
+               regex: .*
+
+   showTerminAttrStatus:
+      syntax: show terminattr status
+      mode: Unprivileged
+      outputSchema: {}
