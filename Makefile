@@ -22,13 +22,12 @@
 
 .SECONDEXPANSION:
 
-PROJECT    ?= terminattr
-VERSION_ID ?= bamboo
-BUILD_ID   ?= 2543
+PROJECT    ?= promtail
+VERSION_ID ?= none
+BUILD_ID   ?= 1
 
 PROJECT_DIR         = $(CURDIR)
-ARISTA_FDK_VERSION ?= 2.7.0alpha1
-ARISTA_FDK_DIR     ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
+ARISTA_FDK_DIR     ?= $(CURDIR)/fdk/
 ARISTA_SRC_DIR      = $(ARISTA_FDK_DIR)/src
 
 SOURCE_FILES = $(PROJECT_DIR)/src_files.json
@@ -117,14 +116,14 @@ clean::
 
 
 #-------------------------------------------------------------------------------
-# Extra variables for building TerminAttr targets
+# Extra variables for building Promtail targets
 #-------------------------------------------------------------------------------
 
 DRIVERFILES =
 
-APP_CLI_PLUGINS = $(APP_INSTALL_DIR)/eos/TerminAttrCli.py
-APP_CLI_EXTENSIONS = $(APP_INSTALL_DIR)/eos/TerminAttr.yaml
-APP_DAEMONS = $(APP_INSTALL_DIR)/eos/TerminAttrDaemon.py
+APP_CLI_PLUGINS = $(APP_INSTALL_DIR)/eos/PromtailCli.py
+APP_CLI_EXTENSIONS = $(APP_INSTALL_DIR)/eos/Promtail.yaml
+APP_DAEMONS = $(APP_INSTALL_DIR)/eos/PromtailDaemon.py
 APP_BUILD_SQUASHFS =
 #-------------------------------------------------------------------------------
 # Include rules
@@ -134,7 +133,7 @@ include $(ARISTA_FDK_DIR)/resources/app.mk
 include $(ARISTA_FDK_DIR)/resources/vivado.mk
 
 #-------------------------------------------------------------------------------
-# Extra rules for building Muxcore targets 
+# Extra rules for building Muxcore targets
 #-------------------------------------------------------------------------------
 
 # This is used via secondary expansion, so OK to put here (after other .mk)
@@ -152,4 +151,3 @@ $(APP_STAGING_DIR)/eos/python_deps2.zip: requirements.txt $(PYTHON2_ENV)
 	mkdir -p $(BUILD_DIR)/python_deps2
 	$(PYTHON2) -m pip install -r $< --target $(BUILD_DIR)/python_deps2
 	cd $(BUILD_DIR)/python_deps2 && zip -q -r -o $@ *
-

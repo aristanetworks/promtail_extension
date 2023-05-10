@@ -1,4 +1,4 @@
-# `terminattr` Example Design
+# `promtail` Example Design
 
 
 > **_Note:_**  Arista supports the compilation and execution of
@@ -12,11 +12,11 @@
 
 Licensed under the [BSD 3-clause license](LICENSE.md)
 
-## Contents                                                                                                                                                                                                                            
+## Contents
 - [`Introduction`](#introduction)
     - [`Usage information`](#usage-information)
     - [`Supported Board Standards and Operating Systems`](#supported-board-standards-and-operating-systems)
-    
+
 - [`Building from Source`](#building-from-source)
 
 - [`Copying the Example`](#copying-the-example)
@@ -27,17 +27,17 @@ Licensed under the [BSD 3-clause license](LICENSE.md)
         - [`Specific FPGA Files`](#specific-fpga-files)
     - [`Software Components`](#software-components)
         - [`EOS`](#eos)
-        
+
 
 ---
 
 ## Introduction
 
 
-TerminAttr is an example designed primarily to demonstrate the use of standard
+Promtail is an example designed primarily to demonstrate the use of standard
 Linux processes in EosSdk daemons.
 
-This example does not work on MOS, as the TerminAttr binary does not run on MOS.
+This example does not work on MOS, as the Promtail binary does not run on MOS.
 
 
 
@@ -62,33 +62,33 @@ This example does not work on MOS, as the TerminAttr binary does not run on MOS.
 
 ## Building from Source
 
-`terminattr` can be built from source, using the supplied `Makefile`. This
+`promtail` can be built from source, using the supplied `Makefile`. This
 includes all software and gateware components (i.e. building the application
 will run the tools to build the FPGA image for each supported Board Standard).
 
-To build the example, simply type `make` within the `terminattr` example directory:
+To build the example, simply type `make` within the `promtail` example directory:
 
 ```console
-arista_fdk/examples/terminattr> make
+arista_fdk/examples/promtail> make
 ```
 
 The result is a versioned RPM file, in the same directory as the `Makefile`.
-The RPM file (e.g. `terminattr-XXX.x86_64.rpm`) can be copied to an Arista
+The RPM file (e.g. `promtail-XXX.x86_64.rpm`) can be copied to an Arista
 switch running EOS or MOS, where it can be installed and enabled. The RPM will
-install a set of files on the target switch in `/opt/apps/terminattr`.
+install a set of files on the target switch in `/opt/apps/promtail`.
 
 Some other useful features are available in the build system provided with the
 FDK. The available targets can be listed using:
 
 ```console
-arista_fdk/examples/terminattr> make targets
+arista_fdk/examples/promtail> make targets
 ```
 
 A simple `make` invocation will build for all available Board Standards. To
 limit to a particular one (e.g. `lb2`) use:
 
 ```console
-arista_fdk/examples/terminattr> make BOARDSTD=lb2
+arista_fdk/examples/promtail> make BOARDSTD=lb2
 ```
 
 For further details, refer to the Arista FPGA Developer's Kit User Guide.
@@ -103,11 +103,11 @@ This example is designed to be copied as the basis for derivative applications,
 and so is licensed under a [BSD 3-clause license](LICENSE.md) to allow copying, modification and
 redistribution under those terms.
 
-To copy and use the example from the Arista FDK, copy the `terminattr` directory
+To copy and use the example from the Arista FDK, copy the `promtail` directory
 outside the FDK tree (probably to a new version control repository):
 
 ```bash
-cp -r arista_fdk-2.7.0alpha1/examples/terminattr mynewproject/
+cp -r arista_fdk-2.7.0alpha1/examples/promtail mynewproject/
 ```
 Update the `Makefile` to change:
 
@@ -118,7 +118,7 @@ Update the `Makefile` to change:
 | `VERSION_ID`     | The project version.     |
 | `BUILD_ID`       | The build ID.            |
 
-For example, for a new project, based on `terminattr` called `mynewproject`:
+For example, for a new project, based on `promtail` called `mynewproject`:
 
 ```diff
 --- mynewproject/Makefile
@@ -127,7 +127,7 @@ For example, for a new project, based on `terminattr` called `mynewproject`:
 
  .SECONDEXPANSION:
 
--PROJECT    ?= terminattr
+-PROJECT    ?= promtail
 -VERSION_ID ?= 3.1.0alpha1
 -BUILD_ID   ?= 5
 +PROJECT    ?= mynewproject
@@ -178,17 +178,17 @@ can co-exist with the MOS software but uses an orthogonal set of interfaces.
 Detailed documentation for EOSSDK and examples can be found on github:
 https://github.com/aristanetworks/EosSdk
 
-The software which implements the `terminattr` example in EOS is located in the
-`arista_fdk/examples/terminattr/src/eos` directory of the Arista FDK.
+The software which implements the `promtail` example in EOS is located in the
+`arista_fdk/examples/promtail/src/eos` directory of the Arista FDK.
 
 The integration with EOS has 3 main components:
 
 
 | File                  | Description                                                                                                                                                                                                       |
 |-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `TerminAttr.yaml`     | A YAML file which describes the CLI commands and daemon.                                                                                                                                                          |
-| `TerminAttrCli.py`    | A Python file which is loaded by the CLI processor in EOS. It implements classes which are called by EOS when CLI commands are entered. This may read from the status store, and write to the config store.       |
-| `TerminAttrDaemon.py` | A Python file which implements a daemon which responds to configuration updates, and publishes status. In the case of `terminattr`, it responds to `no disable` commands by programming and configuring the FPGA. |
+| `Promtail.yaml`     | A YAML file which describes the CLI commands and daemon.                                                                                                                                                          |
+| `PromtailCli.py`    | A Python file which is loaded by the CLI processor in EOS. It implements classes which are called by EOS when CLI commands are entered. This may read from the status store, and write to the config store.       |
+| `PromtailDaemon.py` | A Python file which implements a daemon which responds to configuration updates, and publishes status. In the case of `promtail`, it responds to `no disable` commands by programming and configuring the FPGA. |
 
 
 It would be appropriate to use these as the basis for EOS support for an application.
@@ -196,8 +196,6 @@ It would be appropriate to use these as the basis for EOS support for an applica
 When creating the RPM several symbolic links are added to these files, which helps
 EOS locate and load the application.
 
-EOS can use two file formats for extensions: `.rpm` and `.swix`. The `terminattr` example
+EOS can use two file formats for extensions: `.rpm` and `.swix`. The `promtail` example
 currently builds a `.rpm` file - the same RPM can be used as a MOS application or
 an EOS extension.
-
-

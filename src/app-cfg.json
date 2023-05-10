@@ -36,8 +36,8 @@
         "${ARISTA_FDK_DIR}/resources/libapp/subprocess.py",
         "${ARISTA_FDK_DIR}/resources/libapp/telemetry.py",
         "${PROJECT_DIR}/src/__init__.py",
-        "${PROJECT_DIR}/src/eos/TerminAttr.yaml",
-        "${PROJECT_DIR}/src/eos/TerminAttrCli.py",
-        "${PROJECT_DIR}/src/eos/TerminAttrDaemon.py"
+        "${PROJECT_DIR}/src/eos/Promtail.yaml",
+        "${PROJECT_DIR}/src/eos/PromtailCli.py",
+        "${PROJECT_DIR}/src/eos/PromtailDaemon.py"
     ]
 }

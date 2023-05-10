@@ -6,7 +6,7 @@
 #-
 #- Description:
 #-   Example application demonstrating the libapp.subprocess module using
-#-    TerminAttr. 
+#-    Promtail.
 #-
 #-   Licensed under BSD 3-clause license:
 #-     https://opensource.org/licenses/BSD-3-Clause
@@ -22,30 +22,30 @@ vendor:
    phoneNumber: +1-408-547-5500
    email: fdk-support@arista.com
 
-namespace: fdk.terminattr
+namespace: fdk.promtail
 
 daemons:
-   TerminAttrDaemon:
-      exe: /opt/apps/terminattr/eos/TerminAttrDaemon.py
+   PromtailDaemon:
+      exe: /opt/apps/promtail/eos/PromtailDaemon.py
 
 modes:
-   terminattr:
+   promtail:
       command:
-         syntax: terminattr
-         noSyntax: terminattr
-      modeKey: terminattr
-      daemon: TerminAttrDaemon
+         syntax: promtail
+         noSyntax: promtail
+      modeKey: promtail
+      daemon: PromtailDaemon
 
 commands:
    disabled:
       syntax: disabled
       noSyntax: disabled
-      mode: terminattr
+      mode: promtail
 
    address:
       syntax: address { <address> port <port> }
       noSyntax: address
-      mode: terminattr
+      mode: promtail
       data:
          <address>:
             ipAddress:
@@ -66,7 +66,7 @@ commands:
    authorization:
       syntax: authorization ((tls [<ca-file>])|(certs <cert-file> <key-file> [ca-file])|(token <token-file>)|(token-secure <token-file> <ca-file>)|(key <key> [<ca-file>])|(session-token <session-token-file> [<ca-file>]))
       noSyntax: authorization
-      mode: terminattr
+      mode: promtail
       data:
          <ca-file>:
            regex:
@@ -96,33 +96,33 @@ commands:
    compression:
       syntax: compression <compression>
       noSyntax: compression
-      mode: terminattr
+      mode: promtail
       data:
          <compression>:
             enum:
                values:
                   gzip: Use gzip compression
 
-   terminattr:
+   promtail:
       syntax: binary <binary>
       noSyntax: binary
-      mode: terminattr
+      mode: promtail
       data:
          <binary>:
             regex:
-               help: The binary to use for TerminAttr
+               help: The binary to use for Promtail
                regex: .*
 
    vrf:
       syntax: vrf <vrf>
       noSyntax: vrf
-      mode: terminattr
+      mode: promtail
       data:
          <vrf>:
             regex:
                regex: .*
 
-   showTerminAttrStatus:
-      syntax: show terminattr status
+   showPromtailStatus:
+      syntax: show promtail status
       mode: Unprivileged
       outputSchema: {}

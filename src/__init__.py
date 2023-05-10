@@ -5,7 +5,7 @@
 #    fdk-support@arista.com
 #
 #  Description:
-#    Package file required for MOS TerminAttr example.
+#    Package file required for Promtail extension.
 #
 #    Licensed under BSD 3-clause license:
 #      https://opensource.org/licenses/BSD-3-Clause
@@ -18,12 +18,12 @@
 # the build system fills this in.
 from __future__ import absolute_import, print_function
 
-from terminattr import libapp
+from promtail import libapp
 
 __version__ = "UNVERSIONED"
 __buildid__ = 0
 
-app_name = "terminattr"
+app_name = "promtail"
 
 if not libapp.IS_EOS:
     print("Warning: MOS is not supported by this application")
