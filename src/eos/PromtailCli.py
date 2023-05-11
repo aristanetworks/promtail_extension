@@ -27,14 +27,17 @@ import CliExtension
 
 from promtail import libapp
 
+
 class ShowPromtailStatusCmd(libapp.cli.ShowEnabledBaseCmd):
     daemon = "PromtailDaemon"
 
     def render(self, data):
         super(ShowPromtailStatusCmd, self).render(data)
 
+
 class DestinationCmd(libapp.cli.ConfigCommandClass):
     key_syntax = "destination"
+
 
 class BinaryCmd(libapp.cli.ConfigCommandClass):
     key_syntax = "binary"

@@ -52,7 +52,9 @@ logger = logging.getLogger(__name__)
 class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
     libapp.eossdk_utils.EosSdkAgent,
     libapp.daemon.ConfigMixin,
-    libapp.daemon.StatusMixin,eossdk.AgentHandler, SubprocessHandler
+    libapp.daemon.StatusMixin,
+    eossdk.AgentHandler,
+    SubprocessHandler,
 ):
     def __init__(self, sdk):
         self.agent_mgr = sdk.get_agent_mgr()
