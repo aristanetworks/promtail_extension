@@ -32,14 +32,13 @@ class ShowPromtailStatusCmd(libapp.cli.ShowEnabledBaseCmd):
 
     def render(self, data):
         super(ShowPromtailStatusCmd, self).render(data)
-        print("Promtail status store:")
-        for k, v in data["status"].items():
-            print("  {}\t{}".format(k, v))
 
-class DestinationCmd(CliExtension.CliCommandClass):
+class DestinationCmd(libapp.cli.ConfigCommandClass):
     key_syntax = "destination"
 
-class BinaryCmd(CliExtension.CliCommandClass):
+class BinaryCmd(libapp.cli.ConfigCommandClass):
+    key_syntax = "binary"
+
     def handler(self, ctx):
         maybe_binary = ctx.args["<binary>"]
         if not os.path.exists(maybe_binary):

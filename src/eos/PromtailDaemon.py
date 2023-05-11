@@ -20,13 +20,17 @@
 from __future__ import absolute_import, division, print_function
 
 import logging
+import json
 import os
 import socket
 import sys
 import tempfile
 
 import eossdk
-from promtail.libapp import eossdk_utils
+
+import libapp
+import libapp.eossdk_utils
+import libapp.daemon
 from promtail.libapp.subprocess import SubprocessHandler, SubprocessMgr
 
 # We have a .zip file locally with our dependencies, build by the makefile.
@@ -46,7 +50,9 @@ logger = logging.getLogger(__name__)
 
 
 class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
-    eossdk_utils.EosSdkAgent, eossdk.AgentHandler, SubprocessHandler
+    libapp.eossdk_utils.EosSdkAgent,
+    libapp.daemon.ConfigMixin,
+    libapp.daemon.StatusMixin,eossdk.AgentHandler, SubprocessHandler
 ):
     def __init__(self, sdk):
         self.agent_mgr = sdk.get_agent_mgr()
@@ -56,7 +62,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
 
         self.initialized = False
 
-        self.config = tempfile.NamedTemporaryFile(
+        self.promtail_config = tempfile.NamedTemporaryFile(
             mode="w+", encoding="utf-8", dir="/tmp/", prefix="promtail-", suffix=".yaml"
         )
 
@@ -114,12 +120,12 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         if self.destination:
             config["clients"] = [{"url": self.destination}]
 
-        self.config.seek(0)
-        self.config.write(yaml.dump(config))
-        self.config.truncate()
-        self.config.flush()
+        self.promtail_config.seek(0)
+        self.promtail_config.write(yaml.dump(config))
+        self.promtail_config.truncate()
+        self.promtail_config.flush()
 
-        logger.debug("Config file written to %s", self.config.name)
+        logger.debug("Config file written to %s", self.promtail_config.name)
         logger.debug(yaml.dump(config))
 
     def run_agent(self):
@@ -139,7 +145,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
 
         self.write_config()
 
-        args = self.binary + ["-config.file", self.config.name]
+        args = self.binary + ["-config.file", self.promtail_config.name]
 
         logger.info("run_agent -- {}".format(" ".join(args)))
         self.child = self.subprocess_mgr.run(args)
@@ -154,33 +160,29 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             self.agent_mgr.status_set("Promtail", "down")
 
     def handle_destination(self, item):
-        if item.value:
-            self.destination = item["<destination>"]
-        else:
-            self.destination = None
+        self.destination = item.value or None
 
     def handle_binary(self, item):
-        if item.value:
-            self.binary = item.get("<binary>")
-        else:
-            self.binary = ["/opt/apps/promtail/promtail"]
-
+        self.binary = [item.value] or ["/opt/apps/promtail/promtail"]
 
     def on_agent_config(self, item):
         """Handler called when a configuration option of the agent has changed.
         If the option was deleted, this will be called with value set as the
         empty string. Otherwise, value will contain the added or altered string
         corresponding to the option name."""
-        logger.info("on_agent_option({}, {})".format(key, val))
+        logger.info("on_agent_config %s %s", json.dumps(item.key), json.dumps(item.value))
 
-        if item.matches("destination"):
+        if item.key == "destination":
             self.handle_destination(item)
-        elif item.matches("binary"):
+        elif item.key == "binary":
             self.handle_binary(item)
 
         self.run_agent()
 
-        self.agent_mgr.status_set(key, val)
+        if item.value:
+            self.status[item.key] = item.value
+        else:
+            del self.status[item.key]
 
     def on_agent_enabled(self, enabled):
         logger.info("on_agent_enabled %s", enabled)
