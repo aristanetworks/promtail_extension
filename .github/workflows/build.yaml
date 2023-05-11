@@ -30,6 +30,13 @@ jobs:
         run: |
           make
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: swix
+          path: |
+            build/*-*.swix
+
 #      - name: Test Summary
 #        uses: test-summary/action@v1
 #        with:
