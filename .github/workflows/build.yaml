@@ -56,7 +56,7 @@ jobs:
 
       - name: Lint
         run: |
-          black .
+          black --check --diff .
 
 #      - name: Lint Summary
 #        uses: test-summary/action@v1
