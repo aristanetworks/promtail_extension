@@ -162,10 +162,16 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             self.agent_mgr.status_set("Promtail", "down")
 
     def handle_destination(self, item):
-        self.destination = item.value or None
+        if item.value:
+            self.destination = item["<destination>"]
+        else:
+            self.destination = None
 
     def handle_binary(self, item):
-        self.binary = [item.value] or ["/opt/apps/promtail/promtail"]
+        if item.value:
+            self.binary = [item["<binary>"]]
+        else:
+            self.binary = ["/opt/apps/promtail/promtail"]
 
     def on_agent_config(self, item):
         """Handler called when a configuration option of the agent has changed.
@@ -174,17 +180,18 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         corresponding to the option name."""
         logger.info("on_agent_config %s %s", json.dumps(item.key), json.dumps(item.value))
 
-        if item.key == "destination":
+        if item.matches("destination"):
             self.handle_destination(item)
-        elif item.key == "binary":
+            self.status[item.key] = item["<destination>"]
+        elif item.matches("binary"):
             self.handle_binary(item)
+            self.status[item.key] = item["<binary>"]
+
+        if not item.value:
+            del self.status[item.key]
 
         self.run_agent()
 
-        if item.value:
-            self.status[item.key] = item.value
-        else:
-            del self.status[item.key]
 
     def on_agent_enabled(self, enabled):
         logger.info("on_agent_enabled %s", enabled)
