@@ -162,6 +162,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             self.agent_mgr.status_set("Promtail", "down")
 
     def handle_destination(self, item):
+        logging.debug(item["<destination>"])
         if item.value:
             self.destination = item["<destination>"]
         else:
@@ -181,14 +182,18 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         logger.info("on_agent_config %s %s", json.dumps(item.key), json.dumps(item.value))
 
         if item.matches("destination"):
+            key = "destination"
             self.handle_destination(item)
-            self.status[item.key] = item["<destination>"]
-        elif item.matches("binary"):
-            self.handle_binary(item)
-            self.status[item.key] = item["<binary>"]
 
-        if not item.value:
-            del self.status[item.key]
+        elif item.matches("binary"):
+            key = "binary"
+            self.handle_binary(item)
+
+
+        if item.value:
+            self.status[key] = item[f"<{key}>"]
+        else:
+            del self.status[key]
 
         self.run_agent()
 
