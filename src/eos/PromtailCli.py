@@ -43,84 +43,20 @@ class ShowPromtailStatusCmd(CliExtension.ShowCommandClass):
             print(k, v)
 
 
-class AddressCmd(CliExtension.CliCommandClass):
+class DestinationCmd(CliExtension.CliCommandClass):
     def handler(self, ctx):
         ctx.daemon.config.configSet(
-            "address",
-            json.dumps([a + ":" + str(p) for a, p in zip(ctx.args["<address>"], ctx.args["<port>"])]),
+            "destination",
+            ctx.args["<destination>"]
         )
 
     def noHandler(self, ctx):
-        ctx.daemon.config.configDel("address")
+        ctx.daemon.config.configDel("destination")
 
 
-class AuthorizationCmd(CliExtension.CliCommandClass):
-    def handler(self, ctx):
-        auth = {}
-        failed = False
-        ca_file = ctx.args.get("<ca-file>")
-        if ca_file:
-            if not os.path.exists(ca_file):
-                failed = True
-                ctx.addError("CA file does not exist: %s" % ca_file)
-        auth["ca-file"] = ca_file
-
-        if ctx.args.get("certs"):
-            auth["method"] = "certs"
-            cert_file = ctx.args["<cert-file>"]
-            key_file = ctx.args["<key-file>"]
-            if not os.path.exists(cert_file):
-                failed = True
-                ctx.addError("Certificate file does not exist: %s" % cert_file)
-            if not os.path.exists(key_file):
-                failed = True
-                ctx.addError("Key file does not exist: %s" % key_file)
-            auth["cert-file"] = cert_file
-            auth["key-file"] = key_file
-
-        elif ctx.args.get("key"):
-            auth["method"] = "key"
-            key = ctx.args["<key>"]
-            auth["key"] = key
-
-        elif ctx.args.get("session-token"):
-            auth["method"] = "session"
-            session_token_file = ctx.args["<session-token-file>"]
-            if not os.path.exists(session_token_file):
-                failed = True
-                ctx.addError("Key file does not exist: %s" % session_token_file)
-            auth["session-token"] = session_token_file
-
-        elif ctx.args.get("tls"):
-            auth["method"] = "tls"
-
-        elif ctx.args.get("token"):
-            auth["method"] = "token"
-            token_file = ctx.args["<token-file>"]
-            auth["token-file"] = token_file
-
-        elif ctx.args.get("token-secure"):
-            auth["method"] = "token-secure"
-            token_file = ctx.args["<token-file>"]
-            auth["token-file"] = token_file
-
-        if failed:
-            return
-        ctx.daemon.config.configSet("auth", json.dumps(auth))
-
-    def noHandler(self, ctx):
-        ctx.daemon.config.configDel("auth")
 
 
-class CompressionCmd(CliExtension.CliCommandClass):
-    def handler(self, ctx):
-        ctx.daemon.config.configSet("compression", ctx.args.get("<compression>"))
-
-    def noHandler(self, ctx):
-        ctx.daemon.config.configDel("compression")
-
-
-class PromtailCmd(CliExtension.CliCommandClass):
+class BinaryCmd(CliExtension.CliCommandClass):
     def handler(self, ctx):
         maybe_binary = ctx.args["<binary>"]
         if not os.path.exists(maybe_binary):
@@ -148,14 +84,6 @@ class PromtailCmd(CliExtension.CliCommandClass):
     defaultHandler = noHandler
 
 
-class VrfCmd(CliExtension.CliCommandClass):
-    def handler(self, ctx):
-        ctx.daemon.config.configSet("vrf", ctx.args.get("<vrf>"))
-
-    def noHandler(self, ctx):
-        ctx.daemon.config.configDel("vrf")
-
-
 class DisabledCmd(CliExtension.CliCommandClass):
     def handler(self, ctx):
         ctx.daemon.config.disable()
@@ -168,9 +96,6 @@ class DisabledCmd(CliExtension.CliCommandClass):
 
 def Plugin(ctx):  # pylint: disable=unused-argument
     CliExtension.registerCommand("showPromtailStatus", ShowPromtailStatusCmd, namespace="fdk.promtail")
-    CliExtension.registerCommand("address", AddressCmd, namespace="fdk.promtail")
-    CliExtension.registerCommand("authorization", AuthorizationCmd, namespace="fdk.promtail")
-    CliExtension.registerCommand("compression", CompressionCmd, namespace="fdk.promtail")
-    CliExtension.registerCommand("vrf", VrfCmd, namespace="fdk.promtail")
-    CliExtension.registerCommand("promtail", PromtailCmd, namespace="fdk.promtail")
+    CliExtension.registerCommand("destination", DestinationCmd, namespace="fdk.promtail")
+    CliExtension.registerCommand("binary", BinaryCmd, namespace="fdk.promtail")
     CliExtension.registerCommand("disabled", DisabledCmd, namespace="fdk.promtail")

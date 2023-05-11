@@ -136,8 +136,23 @@ include $(ARISTA_FDK_DIR)/resources/vivado.mk
 # Extra rules for building Muxcore targets
 #-------------------------------------------------------------------------------
 
+$(BUILD_DIR)/downloads/:
+	mkdir -p $@
+
+$(BUILD_DIR)/downloads/promtail-linux-amd64.zip: \
+			|$$(@D)/
+	wget -q -O $@ "https://github.com/grafana/loki/releases/download/v2.8.2/promtail-linux-amd64.zip"
+
+$(APP_STAGING_DIR)/promtail: $(BUILD_DIR)/downloads/promtail-linux-amd64.zip
+	cd $(BUILD_DIR) && unzip -o $<
+	mv $(BUILD_DIR)/$(basename $(<F)) $@
+	chmod a+x $@
+
 # This is used via secondary expansion, so OK to put here (after other .mk)
-EXTRA_APP_FILES = $(APP_STAGING_DIR)/eos/python_deps2.zip $(APP_STAGING_DIR)/eos/python_deps3.zip
+EXTRA_APP_FILES = \
+			$(APP_STAGING_DIR)/eos/python_deps2.zip \
+			$(APP_STAGING_DIR)/eos/python_deps3.zip \
+			$(APP_STAGING_DIR)/promtail
 
 # Python requirements are packaged as a zip file in the app for now
 $(APP_STAGING_DIR)/eos/python_deps3.zip: requirements.txt $(PYTHON3_ENV)

@@ -42,68 +42,7 @@ commands:
       noSyntax: disabled
       mode: promtail
 
-   address:
-      syntax: address { <address> port <port> }
-      noSyntax: address
-      mode: promtail
-      data:
-         <address>:
-            ipAddress:
-         <port>:
-            integer:
-
-   # Authentication scheme used to connect to CloudVision. Possible values
-   #   "none": no authentication
-   #   "none-tls[,{caFile}]": no authentication, TLS encryption
-   #   "certs,{certFile},{keyFile}[,{caFile}]": client-side certificate
-   #   "token,{tokenFile}": client-side certificate with token-based enrollment
-   #   "token-secure,{tokenFile}[,{caFile}]": client-side certificate with token-based enrollment,
-   #       with initial connection verified using TLS.
-   #       Uses OS default CA for verification if caFile is not given.
-   #   "key,{key}[,{caFile}]": Metadata key authentication with TLS encryption.
-   #   "session-token",{sessionTokenFile}[,{caFile}]": Session token authentication with TLS encryption.
-
-   authorization:
-      syntax: authorization ((tls [<ca-file>])|(certs <cert-file> <key-file> [ca-file])|(token <token-file>)|(token-secure <token-file> <ca-file>)|(key <key> [<ca-file>])|(session-token <session-token-file> [<ca-file>]))
-      noSyntax: authorization
-      mode: promtail
-      data:
-         <ca-file>:
-           regex:
-             regex: .*
-             help: A CA certificate file
-         <cert-file>:
-           regex:
-             regex: .*
-             help: A CA certificate file
-         <key-file>:
-           regex:
-             regex: .*
-             help: A key file
-         <token-file>:
-           regex:
-             regex: .*
-             help: A key file
-         <key>:
-           regex:
-             regex: .*
-             help: A key for TLS encryption
-         <session-token-file>:
-           regex:
-             regex: .*
-             help: Session token authentication
-
-   compression:
-      syntax: compression <compression>
-      noSyntax: compression
-      mode: promtail
-      data:
-         <compression>:
-            enum:
-               values:
-                  gzip: Use gzip compression
-
-   promtail:
+   binary:
       syntax: binary <binary>
       noSyntax: binary
       mode: promtail
@@ -113,13 +52,14 @@ commands:
                help: The binary to use for Promtail
                regex: .*
 
-   vrf:
-      syntax: vrf <vrf>
-      noSyntax: vrf
+   destination:
+      syntax: destination <destination>
+      noSyntax: destination
       mode: promtail
       data:
-         <vrf>:
+         <destination>:
             regex:
+               help: The URL of a Loki endpoint to push to
                regex: .*
 
    showPromtailStatus:
