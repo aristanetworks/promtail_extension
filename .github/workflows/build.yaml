@@ -57,7 +57,7 @@ jobs:
 
       - name: Lint
         run: |
-          black --check --diff --config pyproject.toml --exclude ./fdk .
+          black --check --diff --config pyproject.toml --exclude "fdk/" .
 
 #      - name: Lint Summary
 #        uses: test-summary/action@v1
