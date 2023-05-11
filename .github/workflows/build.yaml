@@ -57,7 +57,7 @@ jobs:
 
       - name: Lint
         run: |
-          black --check --diff .
+          black --check --diff --config pyproject.toml .
 
 #      - name: Lint Summary
 #        uses: test-summary/action@v1

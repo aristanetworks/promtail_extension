@@ -45,15 +45,10 @@ class ShowPromtailStatusCmd(CliExtension.ShowCommandClass):
 
 class DestinationCmd(CliExtension.CliCommandClass):
     def handler(self, ctx):
-        ctx.daemon.config.configSet(
-            "destination",
-            ctx.args["<destination>"]
-        )
+        ctx.daemon.config.configSet("destination", ctx.args["<destination>"])
 
     def noHandler(self, ctx):
         ctx.daemon.config.configDel("destination")
-
-
 
 
 class BinaryCmd(CliExtension.CliCommandClass):

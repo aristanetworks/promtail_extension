@@ -42,6 +42,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
+
 class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
     eossdk_utils.EosSdkAgent, eossdk.AgentHandler, SubprocessHandler
 ):
@@ -52,10 +53,12 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         SubprocessHandler.__init__(self, self.subprocess_mgr)
 
         self.initialized = False
-#        self.tracer = eossdk.Tracer("PromtailDaemon")
-#        self.tracer.enabled_is(0, True)
+        #        self.tracer = eossdk.Tracer("PromtailDaemon")
+        #        self.tracer.enabled_is(0, True)
 
-        self.config = tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8", dir="/tmp/", prefix="promtail-", suffix=".yaml")
+        self.config = tempfile.NamedTemporaryFile(
+            mode="w+", encoding="utf-8", dir="/tmp/", prefix="promtail-", suffix=".yaml"
+        )
 
         self.child = None
         self.binary = ["/opt/apps/promtail/promtail"]  # type: list[str]
@@ -87,32 +90,26 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
 
     def write_config(self):
         config = {
-            "server":{
-                "http_listen_port":0,
-                "grpc_listen_port":0
-            },
-            "positions":{
-                "filename":"/tmp/positions.yaml"
-            },
-            "scrape_configs":[
+            "server": {"http_listen_port": 0, "grpc_listen_port": 0},
+            "positions": {"filename": "/tmp/positions.yaml"},
+            "scrape_configs": [
                 {
-                    "job_name":"system",
-                    "pipeline_stages":None,
-                    "static_configs":[
+                    "job_name": "system",
+                    "pipeline_stages": None,
+                    "static_configs": [
                         {
-                            "labels":{
-                                "job":"agent_logs",
-                                "host":socket.gethostname(),
-                                "__path__":"/var/log/agents-latest/*"
+                            "labels": {
+                                "job": "agent_logs",
+                                "host": socket.gethostname(),
+                                "__path__": "/var/log/agents-latest/*",
                             }
                         }
-                    ]
+                    ],
                 }
-            ]
-
+            ],
         }
         if self.destination:
-            config["clients"] = [{"url":self.destination}]
+            config["clients"] = [{"url": self.destination}]
 
         self.config.seek(0)
         self.config.write(yaml.dump(config))
@@ -164,7 +161,6 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             self.binary = [value]
         else:
             self.binary = ["/opt/apps/promtail/promtail"]
-
 
     def on_agent_option(self, key, val):
         """Handler called when a configuration option of the agent has changed.
