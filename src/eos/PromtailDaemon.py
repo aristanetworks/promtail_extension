@@ -40,6 +40,8 @@ import yaml
 
 logging.basicConfig(level=logging.DEBUG)
 
+daemon_name = "PromtailDaemon"
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,8 +55,6 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         SubprocessHandler.__init__(self, self.subprocess_mgr)
 
         self.initialized = False
-        #        self.tracer = eossdk.Tracer("PromtailDaemon")
-        #        self.tracer.enabled_is(0, True)
 
         self.config = tempfile.NamedTemporaryFile(
             mode="w+", encoding="utf-8", dir="/tmp/", prefix="promtail-", suffix=".yaml"
@@ -76,12 +76,15 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         status that this agent is interested in."""
         logger.debug("on_initialized")
 
-        for k in self.agent_mgr.agent_option_iter():
-            self.on_agent_option(k, self.agent_mgr.agent_option(k))
+        # Remove all status, giving us a clean slate.
+        self.status.clear()
 
-        logger.info(tuple(self.agent_mgr.agent_option_iter()))
+        # Load any initial config.
+        for item in self.config:
+            self.on_agent_config(item)
 
-        self.agent_mgr.status_set("PromtailDaemon", "up")
+        # Indicate the daemon status (read by the CLI code).
+        self.status["running"] = True
 
         self.initialized = True
 
@@ -150,43 +153,48 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             self.child = None
             self.agent_mgr.status_set("Promtail", "down")
 
-    def handle_destination(self, value):
-        if value:
-            self.destination = value
+    def handle_destination(self, item):
+        if item.value:
+            self.destination = item["<destination>"]
         else:
             self.destination = None
 
-    def handle_binary(self, value):
-        if value:
-            self.binary = [value]
+    def handle_binary(self, item):
+        if item.value:
+            self.binary = item.get("<binary>")
         else:
             self.binary = ["/opt/apps/promtail/promtail"]
 
-    def on_agent_option(self, key, val):
+
+    def on_agent_config(self, item):
         """Handler called when a configuration option of the agent has changed.
         If the option was deleted, this will be called with value set as the
         empty string. Otherwise, value will contain the added or altered string
         corresponding to the option name."""
         logger.info("on_agent_option({}, {})".format(key, val))
 
-        if key == "destination":
-            self.handle_destination(val)
-        elif key == "binary":
-            self.handle_binary(val)
+        if item.matches("destination"):
+            self.handle_destination(item)
+        elif item.matches("binary"):
+            self.handle_binary(item)
 
         self.run_agent()
 
         self.agent_mgr.status_set(key, val)
 
     def on_agent_enabled(self, enabled):
-        logger.debug("on_agent_enabled({})".format(enabled))
+        logger.info("on_agent_enabled %s", enabled)
+
         # Make sure that Promtail is killed
         if self.child:
             child = self.child
             self.child = None
             child.kill()
             self.agent_mgr.status_set("Promtail", "down")
-        self.agent_mgr.status_del("PromtailDaemon")
+
+        # Remove all status.
+        self.status.clear()
+
         self.agent_mgr.agent_shutdown_complete_is(True)
 
 

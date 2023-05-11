@@ -5,7 +5,7 @@
 #-   fdk-support@arista.com
 #-
 #- Description:
-#-   .spec file to build an example app.
+#-   .spec file to build an app.
 #-
 #-   Licensed under BSD 3-clause license:
 #-     https://opensource.org/licenses/BSD-3-Clause

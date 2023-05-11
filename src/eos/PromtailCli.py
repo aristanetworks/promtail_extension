@@ -25,31 +25,19 @@ import subprocess
 
 import CliExtension
 
+from promtail import libapp
 
-class ShowPromtailStatusCmd(CliExtension.ShowCommandClass):
-    def handler(self, ctx):
-        result = {"running": False}
-        daemon = ctx.getDaemon("PromtailDaemon")
-        if daemon is None:
-            # Daemon is not currently running
-            return result
-        for k, v in daemon.status.statusIter():
-            result[k] = v
-        result["running"] = result.get("PromtailDaemon") == "up"
-        return result
+class ShowPromtailStatusCmd(libapp.cli.ShowEnabledBaseCmd):
+    daemon = "PromtailDaemon"
 
     def render(self, data):
-        for k, v in data.items():
-            print(k, v)
-
+        super(ShowPromtailStatusCmd, self).render(data)
+        print("Promtail status store:")
+        for k, v in data["status"].items():
+            print("  {}\t{}".format(k, v))
 
 class DestinationCmd(CliExtension.CliCommandClass):
-    def handler(self, ctx):
-        ctx.daemon.config.configSet("destination", ctx.args["<destination>"])
-
-    def noHandler(self, ctx):
-        ctx.daemon.config.configDel("destination")
-
+    key_syntax = "destination"
 
 class BinaryCmd(CliExtension.CliCommandClass):
     def handler(self, ctx):
