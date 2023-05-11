@@ -28,14 +28,14 @@ jobs:
 
       - name: Build using make
         run: |
-          make
+          VERSION_ID="${{ github.ref_name }}" make
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: swix
           path: |
-            promtail-none.swix
+            promtail-${{ github.ref_name }}.swix
 
 #      - name: Test Summary
 #        uses: test-summary/action@v1
