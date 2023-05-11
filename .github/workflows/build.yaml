@@ -35,7 +35,7 @@ jobs:
         with:
           name: swix
           path: |
-            *-*.swix
+            promtail-none.swix
 
 #      - name: Test Summary
 #        uses: test-summary/action@v1
