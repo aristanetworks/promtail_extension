@@ -21,9 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get install make
           python -m pip install --upgrade pip
-          pip install pytest tox
 
       - name: Build using make
         run: |
