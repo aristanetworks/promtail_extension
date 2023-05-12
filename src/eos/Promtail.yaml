@@ -35,6 +35,7 @@ modes:
          noSyntax: promtail
       modeKey: promtail
       daemon: PromtailDaemon
+      runningConfigGenerator: !!python/name:promtail.libapp.cli.running_config
 
 commands:
    disabled:
