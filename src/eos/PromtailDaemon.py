@@ -136,14 +136,14 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             return
 
         if not self.destination:
-            self.agent_mgr.status_set("Promtail", "No Destination Set")
+            self.status["Promtail"] = "no destination"
 
         # There was an existing child process - we should terminate it
         if self.child:
             child = self.child
             self.child = None
             child.kill()
-            self.agent_mgr.status_set("Promtail", "down")
+            self.status["Promtail"] = "down"
 
         self.write_config()
 
@@ -151,7 +151,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
 
         logger.info("run_agent -- {}".format(" ".join(args)))
         self.child = self.subprocess_mgr.run(args)
-        self.agent_mgr.status_set("Promtail", "up")
+        self.status["Promtail"] = "up"
 
     def on_process_exit(self, child, exit_code):
         """Handler called when a child process exits.
@@ -159,7 +159,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
         logger.debug("on_process_exit({}, {})".format(child, exit_code))
         if child == self.child:
             self.child = None
-            self.agent_mgr.status_set("Promtail", "down")
+            self.status["Promtail"] = "down"
 
     def handle_destination(self, item):
         logging.debug(item["<destination>"])
@@ -189,7 +189,6 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             key = "binary"
             self.handle_binary(item)
 
-
         if item.value:
             self.status[key] = item[f"<{key}>"]
         else:
@@ -206,7 +205,7 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
             child = self.child
             self.child = None
             child.kill()
-            self.agent_mgr.status_set("Promtail", "down")
+            self.status["Promtail"] = "down"
 
         # Remove all status.
         self.status.clear()

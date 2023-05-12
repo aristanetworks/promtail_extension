@@ -31,9 +31,29 @@ from promtail import libapp
 class ShowPromtailStatusCmd(libapp.cli.ShowEnabledBaseCmd):
     daemon = "PromtailDaemon"
 
+    def handler(self, ctx):
+        result = super(ShowPromtailStatusCmd, self).handler(ctx)
+        result["status"] = {}
+
+        daemon = ctx.getDaemon("PromtailDaemon")
+
+        if daemon is None:
+            # Daemon is not currently running
+            return result
+
+        status = libapp.cli.StatusAccessor(daemon.status)
+
+        result["status"]["promtail"] = status.get("Promtail")
+        result["status"]["destination"] = status.get("destination")
+        result["status"]["binary"] = status.get("binary")
+
+        return result
+
     def render(self, data):
         super(ShowPromtailStatusCmd, self).render(data)
-
+        print("Promtail status store:")
+        for k, v in data["status"].items():
+            print("  {}\t{}".format(k, v))
 
 class DestinationCmd(libapp.cli.ConfigCommandClass):
     key_syntax = "destination"
@@ -48,7 +68,7 @@ class BinaryCmd(libapp.cli.ConfigCommandClass):
             ctx.addError("Binary file does not exist: %s" % maybe_binary)
             return
         try:
-            out = subprocess.check_output([maybe_binary, "-version"])
+            out = subprocess.check_output([maybe_binary, "-version"]).decode('utf-8')
         except OSError as e:
             ctx.addError("OSError occurred whilst trying to check version." " Is this a valid binary? {}".format(e))
             return
@@ -59,12 +79,14 @@ class BinaryCmd(libapp.cli.ConfigCommandClass):
             return
 
         # Check that the version string contains the go version it was built with
-        if not out.contains(" go1"):
+        if " go1" not in out:
             ctx.addWarning("This may not be a valid Promtail command - will attempt to use anyway")
-        ctx.daemon.config.configSet("promtail", maybe_binary)
+
+        super(BinaryCmd, self).handler(ctx)
 
     def noHandler(self, ctx):
-        ctx.daemon.config.configDel("promtail")
+        super(BinaryCmd, self).noHandler(ctx)
+
 
     defaultHandler = noHandler
 
