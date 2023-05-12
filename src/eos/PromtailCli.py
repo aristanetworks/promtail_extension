@@ -55,6 +55,7 @@ class ShowPromtailStatusCmd(libapp.cli.ShowEnabledBaseCmd):
         for k, v in data["status"].items():
             print("  {}\t{}".format(k, v))
 
+
 class DestinationCmd(libapp.cli.ConfigCommandClass):
     key_syntax = "destination"
 
@@ -68,7 +69,7 @@ class BinaryCmd(libapp.cli.ConfigCommandClass):
             ctx.addError("Binary file does not exist: %s" % maybe_binary)
             return
         try:
-            out = subprocess.check_output([maybe_binary, "-version"]).decode('utf-8')
+            out = subprocess.check_output([maybe_binary, "-version"]).decode("utf-8")
         except OSError as e:
             ctx.addError("OSError occurred whilst trying to check version." " Is this a valid binary? {}".format(e))
             return
@@ -86,7 +87,6 @@ class BinaryCmd(libapp.cli.ConfigCommandClass):
 
     def noHandler(self, ctx):
         super(BinaryCmd, self).noHandler(ctx)
-
 
     defaultHandler = noHandler
 

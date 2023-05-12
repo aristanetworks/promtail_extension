@@ -196,7 +196,6 @@ class PromtailDaemon(  # pylint: disable=too-many-instance-attributes
 
         self.run_agent()
 
-
     def on_agent_enabled(self, enabled):
         logger.info("on_agent_enabled %s", enabled)
 
