@@ -1,0 +1,3 @@
+[submodule "fdk"]
+	path = fdk
+	url = https://github.com/aristanetworks/openfdk.git

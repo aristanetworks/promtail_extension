@@ -1,1 +1,91 @@
-# Placeholder
+#-------------------------------------------------------------------------------
+#- Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+#- Author:
+#-   fdk-support@arista.com
+#-
+#- Description:
+#-   Github workflow for building FDK applications.
+#-
+#-   Licensed under BSD 3-clause license:
+#-     https://opensource.org/licenses/BSD-3-Clause
+#-
+#- Tags:
+#-   license-bsd-3-clause
+#-
+#-------------------------------------------------------------------------------
+
+name: promtail_extension
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: |
+            3.11
+            2.7
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install virtualenv
+
+      - name: Build using make
+        run: |
+          make
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: swix
+          path: |
+            promtail-none.swix
+
+#      - name: Test Summary
+#        uses: test-summary/action@v1
+#        with:
+#          paths: |
+#            test-reports/*.xml
+#        if: always()
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black
+
+      - name: Lint
+        run: |
+          black --check --diff --config pyproject.toml --exclude "fdk/" .
+
+#      - name: Lint Summary
+#        uses: test-summary/action@v1
+#        with:
+#          paths: |
+#            test-reports/*.xml
+#        if: always()
